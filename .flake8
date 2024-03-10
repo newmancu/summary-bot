@@ -1,0 +1,5 @@
+[flake8]
+exclude =
+    alembic,venv,*API_SIM*
+ignore =
+    W503, F821, F722, E203, E402, E731

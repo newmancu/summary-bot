@@ -1,0 +1,43 @@
+version: "3.8"
+
+x-apm_env: &arm_env
+  SERVER_HOST: 0.0.0.0
+  SERVER_PORT: 8000
+  DATABASE_HOST: db
+  DATABASE_PORT: 5432
+
+  POSTGRES_DB: summary_bot
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+
+
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:  # need to remove in prod
+      - 5432:5432
+    environment:
+      <<: *arm_env
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  arm-server:
+    build:
+      context: .
+    environment:
+      <<: *arm_env
+    command: bash -c "alembic upgrade heads && poetry run python3 -m main"
+    depends_on:
+      - db
+
+
+volumes:
+  db:

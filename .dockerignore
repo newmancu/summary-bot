@@ -1,0 +1,5 @@
+.gitignore
+.git
+.vscode
+Dockerfile
+__pycache__
